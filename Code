@@ -1,0 +1,47 @@
+// Thermistor-Anschlüsse
+const int thermistorPin = A0;
+
+// Konstanten
+const int thermistorNominal = 10000;  // Nennwert des Thermistors
+const int temperatureNominal = 25;    // Nennwert der Temperatur
+const int numSamples = 10;            // Anzahl der Messungen zur Durchschnittsbildung
+const int BCoefficient = 3950;        // Beta-Koeffizient des Thermistors
+
+// Funktion zur Berechnung der Temperatur
+float getTemperature(int rawADC) {
+  float averageADC = 0;
+
+  // Durchschnittswert der ADC-Messungen berechnen
+  for (int i = 0; i < numSamples; i++) {
+    averageADC += analogRead(thermistorPin);
+    delay(10);
+  }
+  averageADC /= numSamples;
+
+  // Widerstandswert des Thermistors berechnen
+  float resistance = 1023 / averageADC - 1;
+  resistance = 10000 / resistance;
+
+  // Temperatur berechnen
+  float temperature = 1 / (log(resistance / thermistorNominal) / BCoefficient + 1.0 / (temperatureNominal + 273.15));
+  temperature -= 273.15;
+
+  return temperature;
+}
+
+void setup() {
+  Serial.begin(9600);  // Serielle Kommunikation initialisieren
+}
+
+void loop() {
+  // Temperatur messen
+  int rawADC = analogRead(thermistorPin);
+  float temperature = getTemperature(rawADC);
+
+  // Temperatur auf dem seriellen Monitor ausgeben
+  Serial.print("Temperatur: ");
+  Serial.print(temperature);
+  Serial.println(" °C");
+
+  delay(1000);  // Eine Sekunde warten
+}
