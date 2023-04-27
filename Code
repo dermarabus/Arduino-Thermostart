@@ -1,28 +1,28 @@
-// Thermistor-Anschlüsse
+// Thermistor connections
 const int thermistorPin = A0;
 
-// Konstanten
-const int thermistorNominal = 10000;  // Nennwert des Thermistors
-const int temperatureNominal = 25;    // Nennwert der Temperatur
-const int numSamples = 10;            // Anzahl der Messungen zur Durchschnittsbildung
-const int BCoefficient = 3950;        // Beta-Koeffizient des Thermistors
+// Constants
+const int thermistorNominal = 10000;  // Thermistor nominal value
+const int temperatureNominal = 25;    // Nominal temperature value
+const int numSamples = 10;            // Number of samples for averaging
+const int BCoefficient = 3950;        // Beta coefficient of the thermistor
 
-// Funktion zur Berechnung der Temperatur
+// Function to calculate temperature
 float getTemperature(int rawADC) {
   float averageADC = 0;
 
-  // Durchschnittswert der ADC-Messungen berechnen
+  // Calculate average value of ADC readings
   for (int i = 0; i < numSamples; i++) {
     averageADC += analogRead(thermistorPin);
     delay(10);
   }
   averageADC /= numSamples;
 
-  // Widerstandswert des Thermistors berechnen
+  // Calculate resistance value of the thermistor
   float resistance = 1023 / averageADC - 1;
   resistance = 10000 / resistance;
 
-  // Temperatur berechnen
+  // Calculate temperature
   float temperature = 1 / (log(resistance / thermistorNominal) / BCoefficient + 1.0 / (temperatureNominal + 273.15));
   temperature -= 273.15;
 
@@ -30,18 +30,18 @@ float getTemperature(int rawADC) {
 }
 
 void setup() {
-  Serial.begin(9600);  // Serielle Kommunikation initialisieren
+  Serial.begin(9600);  // Initialize serial communication
 }
 
 void loop() {
-  // Temperatur messen
+  // Measure temperature
   int rawADC = analogRead(thermistorPin);
   float temperature = getTemperature(rawADC);
 
-  // Temperatur auf dem seriellen Monitor ausgeben
-  Serial.print("Temperatur: ");
+  // Print temperature on the serial monitor
+  Serial.print("Temperature: ");
   Serial.print(temperature);
   Serial.println(" °C");
 
-  delay(1000);  // Eine Sekunde warten
+  delay(1000);  // Wait for one second
 }
